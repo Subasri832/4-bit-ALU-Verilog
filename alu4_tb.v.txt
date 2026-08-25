@@ -1,0 +1,92 @@
+`timescale 1ns/1ps
+
+module alu4_tb;
+
+    reg [3:0] A;
+    reg [3:0] B;
+    reg [2:0] opcode;
+
+    wire [3:0] Result;
+    wire Carry;
+    wire Zero;
+    wire Overflow;
+
+    // Instantiate ALU
+    alu4 uut (
+        .A(A),
+        .B(B),
+        .opcode(opcode),
+        .Result(Result),
+        .Carry(Carry),
+        .Zero(Zero),
+        .Overflow(Overflow)
+    );
+
+    // Test task
+    task test;
+        input [3:0] test_A;
+        input [3:0] test_B;
+        input [2:0] test_opcode;
+
+        begin
+
+            A = test_A;
+            B = test_B;
+            opcode = test_opcode;
+
+            #10;
+
+            $display(
+                "A=%b B=%b Opcode=%b Result=%b Carry=%b Zero=%b Overflow=%b",
+                A, B, opcode, Result, Carry, Zero, Overflow
+            );
+
+        end
+    endtask
+
+    initial begin
+
+        // Waveform generation
+        $dumpfile("alu4.vcd");
+        $dumpvars(0, alu4_tb);
+
+        // ADD
+        test(4'b0011, 4'b0010, 3'b000);
+
+        // ADD with Carry
+        test(4'b1111, 4'b0001, 3'b000);
+
+        // ADD with Signed Overflow
+        test(4'b0111, 4'b0001, 3'b000);
+
+        // SUBTRACTION
+        test(4'b0101, 4'b0010, 3'b001);
+
+        // SUBTRACTION producing Zero
+        test(4'b0101, 4'b0101, 3'b001);
+
+        // AND
+        test(4'b1100, 4'b1010, 3'b010);
+
+        // OR
+        test(4'b1100, 4'b1010, 3'b011);
+
+        // XOR
+        test(4'b1100, 4'b1010, 3'b100);
+
+        // NOT
+        test(4'b1010, 4'b0000, 3'b101);
+
+        // LEFT SHIFT
+        test(4'b0011, 4'b0000, 3'b110);
+
+        // RIGHT SHIFT
+        test(4'b1100, 4'b0000, 3'b111);
+
+        #10;
+
+        $finish;
+
+    end
+
+endmodule
